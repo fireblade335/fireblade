@@ -1,18 +1,34 @@
 # This file is part of BlackArch Linux ( http://blackarch.org ).
 # See COPYING for license details.
 
-pkgname='backports-drivers-frag+ack'
-_patch=mac80211.compat08082009.wl_frag+ack_v1.patch
-pkgver='1'
+pkgname='wifijammer'
+pkgver=62.8d60077
 pkgrel=1
-pkgdesc="$_patch for compat-drivers-patched"
-url='https://backports.wiki.kernel.org/index.php/Main_Page'
+groups=('blackarch' 'blackarch-wireless')
+pkgdesc='A python script to continuosly jam all wifi clients within range.'
 arch=('any')
-license=('GPL')
-source=("http://patches.aircrack-ng.org/$_patch")
-sha256sums=('e04ed9997e1578cc1becd4ef9d9f2f6f606590aa91a56e42835963913e1b0f52')
+url='https://github.com/DanMcInerney/wifijammer'
+license=('GPL2')
+depends=('python2' 'scapy')
+makedepends=('git')
+source=('git+https://github.com/DanMcInerney/wifijammer.git')
+sha1sums=('SKIP')
+
+pkgver() {
+  cd "$srcdir/wifijammer"
+
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+prepare(){
+  cd "$srcdir/wifijammer"
+
+  sed -i 's|/usr/bin/env python|/usr/bin/env python2|g' wifijammer.py
+}
 
 package() {
-  mkdir -p "$pkgdir/etc/makepkg.d/compat-drivers-patched/patches"
-  install "$srcdir/$_patch" "$pkgdir/etc/makepkg.d/compat-drivers-patched/patches/50-1-$_patch"
+  cd "$srcdir/wifijammer"
+
+  install -Dm755 wifijammer.py "$pkgdir/usr/bin/wifijammer"
+  install -Dm644 README.md "$pkgdir/usr/share/doc/wifijammer"
 }
