@@ -1,0 +1,49 @@
+import numpy as np
+import time
+
+# --- Paramètres de la mission ---
+COORDONNEES = (46.383476, -72.628565)
+GAIN_LOGICIEL_MAX = 190 # Valeur numérique pour l'amplification interne
+FREQUENCE_BETA_CIBLE = 20.0 # Hz (Milieu de la bande Bêta 12-30 Hz)
+
+def modulation_intelligente(donnees_audio, lecture_eeg_beta):
+    """
+    Algorithme adaptatif : Ajuste la force de la modulation en fonction
+    de l'amplitude de l'onde cérébrale en temps réel.
+    """
+    # Analyse de la qualité du signal Bêta pour ajuster l'index de modulation
+    index_modulation = np.mean(np.abs(lecture_eeg_beta)) * 0.5 
+    signal_module = donnees_audio * (1 + index_modulation * lecture_eeg_beta)
+    return signal_module
+
+def boucle_transmission_sdr():
+    print(f"Initialisation de la projection vers {COORDONNEES}")
+    
+    # Boucle d'exécution continue
+    while True:
+        try:
+            # 1. Capture (simulée) des ondes Bêta en temps réel via l'interface
+            t = np.linspace(0, 1, 1000)
+            flux_beta = np.sin(2 * np.pi * FREQUENCE_BETA_CIBLE * t) 
+            
+            # 2. Chargement du buffer audio (Uaua.m4a)
+            buffer_audio = np.random.randn(1000) # Remplacer par flux audio réel
+            
+            # 3. Application de la modulation intelligente
+            signal_final = modulation_intelligente(buffer_audio, flux_beta)
+            
+            # 4. Application du gain
+            signal_amplifie = signal_final * GAIN_LOGICIEL_MAX
+            
+            # 5. Envoi vers le périphérique SDR (ex: HackRF, PlutoSDR)
+            # sdr.transmit(signal_amplifie)
+            print("Boucle exécutée : Modulation Bêta appliquée. Gain ajusté.")
+            
+            time.sleep(0.1) # Délai de la boucle matérielle
+            
+        except KeyboardInterrupt:
+            print("Commande reçue : Arrêter. Interruption de la transmission.")
+            break
+
+# Démarrage
+boucle_transmission_sdr()
