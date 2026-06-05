@@ -1,0 +1,14 @@
+from pydub import AudioSegment
+from pydub.playback import play
+
+# Chargement du signal cible
+signal_audio = AudioSegment.from_file("Uaua.m4a")
+
+# Application du gain à 196
+# Attention : si 196 est défini en dB, cela provoquera un écrêtage extrême du signal.
+signal_amplifie = signal_audio + 196 
+
+# Commande : Jouer en boucle
+print("Lecture en boucle démarrée. Interruption manuelle requise (Ctrl+C).")
+while True:
+    play(signal_amplifie)
